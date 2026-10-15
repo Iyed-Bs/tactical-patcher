@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tactical Patcher · Scout</title>
+<meta name="description" content="A player and a club: where he could be in four seasons at that club, where he is, or on loan.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="icon" href="/static/favicon.svg">
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/scout.css">
+</head>
+<body class="app">
+<header class="appbar">
+  <a class="brand" href="/" aria-label="Tactical Patcher, home">
+    <svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M16 7c3 4 5 6.5 5 10a5 5 0 0 1-10 0c0-2 1-3.6 2.4-5.2.3 1.6 1.1 2.6 2.1 3.1-.4-3 .1-5.4.5-7.9z" fill="currentColor"/></svg>
+    <span>Tactical Patcher</span><em>Scout</em>
+  </a>
+  <div class="appbar-tools">
+    <label class="ours">Club
+      <select id="our-club" aria-label="Club"></select>
+    </label>
+    <span class="season num">2026/27</span>
+  </div>
+</header>
+
+<div class="workspace">
+  <aside class="rail" aria-label="Search players">
+    <div class="modes" role="tablist">
+      <button class="mode on" data-mode="search" role="tab">Search</button>
+      <button class="mode" data-mode="market" role="tab">Market</button>
+      <button class="mode" data-mode="lab" role="tab">Tactics board</button>
+      <button class="mode" data-mode="lists" role="tab">Lists</button>
+    </div>
+    <div id="mode-lists" class="mode-pane lists-pane" hidden>
+      <section class="list-block" data-list="shortlist">
+        <h2 class="list-title">Shortlist <span class="num count" data-count="shortlist"></span></h2>
+        <ol id="list-shortlist" class="results small list"></ol>
+      </section>
+      <section class="list-block" data-list="radar">
+        <h2 class="list-title">Under the radar <span class="num count" data-count="radar"></span></h2>
+        <p class="muted list-hint">Players few clubs are watching yet: low minutes, a small league, a price that hasn't moved.</p>
+        <ol id="list-radar" class="results small list"></ol>
+        <button type="button" class="ghost" id="radar-find">Find candidates in the market</button>
+      </section>
+      <div class="filter-actions"><button type="button" id="cmp-go" disabled>Compare</button><button type="button" class="ghost" id="cmp-clear">Clear ticks</button></div>
+      <p class="rail-note">Tick two to four players to compare them, all played forward at the selected club. A player from its squad can join from the comparison.</p>
+    </div>
+    <form id="mode-lab" class="mode-pane filters board-controls" hidden>
+      <fieldset>
+        <legend>Coach</legend>
+        <select name="style" id="lab-style" aria-label="Coach style" class="wide"></select>
+        <p class="muted lab-idea" id="lab-idea"></p>
+        <label>Formation <select name="formation" id="lab-formation"></select></label>
+      </fieldset>
+      <fieldset>
+        <legend>Attacking</legend>
+        <div class="seg" data-k="attack"></div>
+        <div class="seg" data-k="build_up"></div>
+        <div class="seg" data-k="area"></div>
+        <div class="seg" data-k="positioning"></div>
+        <label>Support range <input name="support" type="range" min="1" max="10" step="1"> <span class="num" data-out="support"></span></label>
+      </fieldset>
+      <fieldset>
+        <legend>Defending</legend>
+        <div class="seg" data-k="defence"></div>
+        <div class="seg" data-k="containment"></div>
+        <div class="seg" data-k="pressing"></div>
+        <label>Defensive line <input name="line" type="range" min="1" max="10" step="1"> <span class="num" data-out="line"></span></label>
+        <label>Compactness <input name="compact" type="range" min="1" max="10" step="1"> <span class="num" data-out="compact"></span></label>
+      </fieldset>
+      <fieldset>
+        <legend>Advanced instructions <span class="hint">two per phase</span></legend>
+        <div class="adv" id="adv-attack"></div>
+        <div class="adv" id="adv-defence"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Squad</legend>
+        <label>Youth trust <input name="youth_trust" type="range" min="0" max="1" step="0.1" value="0.3"> <span class="num" data-out="youth_trust">0.3</span></label>
+        <label>Rotation <input name="rotation" type="range" min="0" max="1" step="0.1" value="0.3"> <span class="num" data-out="rotation">0.3</span></label>
+        <label>Seasons <select name="seasons"><option>1</option><option>2</option><option selected>3</option><option>4</option></select></label>
+      </fieldset>
+      <fieldset>
+        <legend>Transfers</legend>
+        <input id="lab-q" type="search" placeholder="Sign a player…" autocomplete="off" aria-label="Sign a player">
+        <ol id="lab-results" class="results small"></ol>
+        <div id="lab-moves" class="moves"></div>
+      </fieldset>
+      <div class="filter-actions"><button type="submit">Play the seasons</button><button type="button" class="ghost" id="lab-reset" title="Back to the coach style's own plan">Reset</button></div>
+    </form>
+    <div id="mode-search" class="mode-pane">
+      <div class="search">
+        <input id="q" type="search" placeholder="Search a player…" autocomplete="off" aria-label="Player name">
+      </div>
+      <ol id="results" class="results"></ol>
+    </div>
+    <form id="mode-market" class="mode-pane filters" hidden>
+      <div class="presets">
+        <button type="button" class="chip" data-preset="wonderkids">Wonderkids</button>
+        <button type="button" class="chip" data-preset="gems">Hidden gems</button>
+        <button type="button" class="chip" data-preset="ready">Ready-made</button>
+        <button type="button" class="chip" data-preset="u19">Under 19</button>
+      </div>
+      <fieldset><legend>Position</legend><div id="f-pos" class="pos-chips"></div></fieldset>
+      <fieldset class="pairs">
+        <legend>Ranges</legend>
+        <label>Age <input name="age_min" type="number" min="15" max="45" placeholder="min"> <input name="age_max" type="number" min="15" max="45" placeholder="max"></label>
+        <label>Rating <input name="overall_min" type="number" placeholder="min"> <input name="overall_max" type="number" placeholder="max"></label>
+        <label>Peak (likely) <input name="peak_min" type="number" placeholder="min"></label>
+        <label>Peak (high road) <input name="peak_high_min" type="number" placeholder="min"></label>
+        <label>Growth room <input name="room_min" type="number" step="0.5" placeholder="min"></label>
+        <label>Value €m <input name="value_min_m" type="number" step="0.5" placeholder="min"> <input name="value_max_m" type="number" step="0.5" placeholder="max"></label>
+        <label>2025/26 minutes % <input name="minutes_min_pct" type="number" placeholder="min"> <input name="minutes_max_pct" type="number" placeholder="max"></label>
+        <label>Height cm <input name="height_min" type="number" placeholder="min"></label>
+        <label>Weak foot <input name="weak_foot_min" type="number" min="1" max="5" placeholder="min"></label>
+      </fieldset>
+      <fieldset>
+        <legend>Where</legend>
+        <label>League <select name="league"><option value="">any</option></select></label>
+        <label>Nationality <input name="nation" list="nations" placeholder="any"></label><datalist id="nations"></datalist>
+        <label>Club <input name="club" placeholder="any"></label>
+        <label class="check"><input name="moved" type="checkbox" value="true"> Moved this summer</label>
+      </fieldset>
+      <fieldset>
+        <legend>How he plays</legend>
+        <label>Role <select name="role"><option value="">any</option></select></label>
+        <label>Min fit <input name="role_fit" type="range" min="0" max="0.5" step="0.05" value="0.1"> <span id="fitv" class="num">0.10</span></label>
+        <label>Archetype <select name="archetype"><option value="">any</option></select></label>
+        <label>FL playing style <select name="fl_style"><option value="">any</option></select></label>
+        <label>PlayStyle <input name="playstyle" list="playstyles" placeholder="e.g. Press Proven"></label><datalist id="playstyles"></datalist>
+        <label>Foot <select name="foot"><option value="">any</option><option>left</option><option>right</option></select></label>
+      </fieldset>
+      <fieldset>
+        <legend>Attributes (minimum)</legend>
+        <div id="f-attrs"></div>
+        <button type="button" class="ghost" id="add-attr">+ attribute</button>
+      </fieldset>
+      <fieldset>
+        <legend>Sort</legend>
+        <select name="sort"><option value="peak_p50">peak (likely)</option><option value="peak_p90">peak (high road)</option>
+          <option value="growth_room">growth room</option><option value="overall">rating now</option><option value="peak_per_million">peak per €m</option>
+          <option value="value_eur">value</option><option value="age">age</option><option value="role">level in the chosen role</option></select>
+        <select name="dir"><option value="desc">high first</option><option value="asc">low first</option></select>
+      </fieldset>
+      <div class="filter-actions"><button type="submit">Search the market</button><button type="reset" class="ghost">Clear</button></div>
+    </form>
+    <p class="rail-note">17,849 players from EA FC 27, clubs as of the 2026 summer window, Football Life 26 ratings where he is in the game.</p>
+  </aside>
+
+  <main id="desk" class="desk">
+    <section class="empty">
+      <h1>The scout's desk</h1>
+      <p class="lede">Search a player on the left and pick a club above: his card, where he could be in four seasons at that club, where he is, or on loan, the players who looked like him at his age, and a call: buy now, buy and loan, wait, or pass.</p>
+      <div class="try"><span>Try</span>
+        <button class="chip" data-q="Bouaddi">Ayyoub Bouaddi</button>
+        <button class="chip" data-q="Doku">Jérémy Doku</button>
+        <button class="chip" data-q="Yamal">Lamine Yamal</button>
+        <button class="chip" data-q="Ethan Mbapp">Ethan Mbappé</button>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="/static/scout.js"></script>
+<script src="/static/board.js"></script>
+</body>
+</html>

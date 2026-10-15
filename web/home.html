@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tactical Patcher</title>
+<meta name="description" content="Master League on real careers: scout a player, search the market, set a game plan and play the seasons forward.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.fotmob.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..800&family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;0,800;1,700;1,800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<link rel="icon" href="/static/favicon.svg">
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/home.css">
+<link rel="prefetch" href="/static/scout.js">
+<link rel="prefetch" href="/static/scout.css">
+</head>
+<body class="home">
+<div class="beams" aria-hidden="true"><i class="b-juventus"></i><i class="b-liverpool"></i><i class="b-dortmund"></i></div>
+<div class="watermark" aria-hidden="true">2026/27</div>
+
+<header class="top">
+  <a class="brand" href="/" aria-label="Tactical Patcher">
+    <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M16 7c3 4 5 6.5 5 10a5 5 0 0 1-10 0c0-2 1-3.6 2.4-5.2.3 1.6 1.1 2.6 2.1 3.1-.4-3 .1-5.4.5-7.9z" fill="currentColor"/></svg>
+    <span>Tactical Patcher</span>
+  </a>
+  <div class="top-right">
+    <span class="tag">Master League · on real careers</span>
+    <span class="season">Season 2026/27</span>
+  </div>
+</header>
+
+<main class="stage">
+  <section class="featured" id="featured" aria-label="Featured players">
+    <!-- Filled from /api/home: left, centre, right. -->
+    <div class="card ghost-card"></div><div class="card ghost-card centre"></div><div class="card ghost-card"></div>
+  </section>
+
+  <nav class="menu" aria-label="Main menu">
+    <a class="tile t-scout" href="/scout#mode=search">
+      <span class="k">01</span><span class="name">Scout</span>
+      <span class="what">Enter a player: four seasons three ways, when to buy, and a call</span>
+      <span class="stat" id="stat-players">FC 27 · Football Life 26</span>
+    </a>
+    <a class="tile t-market" href="/scout#mode=market">
+      <span class="k">02</span><span class="name">Market</span>
+      <span class="what">Master League's transfer search, and what it lacks: peaks, roles, fit</span>
+      <span class="stat" id="stat-moves">Summer 2026 window</span>
+    </a>
+    <a class="tile t-board" href="/scout#mode=lab">
+      <span class="k">03</span><span class="name">Tactics board</span>
+      <span class="what">A club, a game plan: shapes, demands, the seasons played forward</span>
+      <span class="stat">8 coach styles · 14 instructions</span>
+    </a>
+    <a class="tile t-research" href="/analysis">
+      <span class="k">04</span><span class="name">Analysis</span>
+      <span class="what">Promises, clubs and coaches after the summer window, and what predicts a career</span>
+      <span class="stat">Promises · clubs · managers</span>
+    </a>
+  </nav>
+</main>
+
+<p class="credits" id="credits"></p>
+<footer class="ticker" aria-label="Summer 2026 transfer window">
+  <span class="ticker-label">Summer 2026</span>
+  <div class="ticker-track"><div class="ticker-run" id="ticker"></div></div>
+</footer>
+<script src="/static/home.js"></script>
+</body>
+</html>

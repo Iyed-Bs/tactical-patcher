@@ -1,0 +1,20 @@
+duckdb
+pandas
+pyarrow
+numpy
+scipy
+scikit-learn
+lightgbm
+statsmodels
+unidecode
+fastapi
+uvicorn[standard]
+socceraction==1.5.3
+multimethod<2
+requests>=2.31
+beautifulsoup4
+lxml
+rapidfuzz
+# model lab only (promesse.lab)
+catboost
+torch
