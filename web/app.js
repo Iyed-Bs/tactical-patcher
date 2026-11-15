@@ -354,7 +354,7 @@ async function method() {
       <li>Minutes at 20 matter more than at 19, which matter more than under 19.</li>
       <li>At 19, reading the game (EA's reactions, composure) predicts careers better than pace.</li>
       <li>Public data plateaus around 0.82–0.88: the rest of the variance lives in what only a club holds (growth, load, cognition, personality, staff judgement).</li>
-      <li>Managers who give youth the most minutes graduate the smallest share of it, and the reverse: volume developers and selective developers (correlation −0.42).</li>
+      <li>Managers who give youth the most minutes graduate the smallest share of it, and the reverse: volume developers and selective developers (Pearson correlation −0.42 across managers with 5 or more developed under-21s).</li>
       <li>A 19-year-old's rating rises about +1.5 a season with no minutes and +5.8 with 80% of his team's minutes (association, not proof).</li>
       <li>Cross-check: Strasbourg gives under-21s 39% of its league minutes here; the CIES Football Observatory measures 37.9% independently.</li>
       <li>Clubs reveal their manager: matched against the Tactical Patcher, Ligue 1's real under-21 minutes in 2022/23–2024/25 read as Strasbourg 12, Montpellier 10, Lyon 6, Lille and Nantes 4, Rennes, Troyes and Monaco 2, PSG, Marseille and Brest 0. At Reims, Toulouse, Lorient and Nice no single setting fits: they picked among their youngsters, not for them.</li>

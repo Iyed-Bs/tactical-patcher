@@ -35,8 +35,9 @@ to decide. The data: 67,179 season-to-season rating changes from FIFA
 10th, 50th and 90th percentile of the change, so each season is drawn from
 a range instead of set to one number. It had to beat the simplest honest
 guess, the average change for a player's age, on seasons it never saw. It
-did: median error 1.49 rating points against 1.79, and the 10–90 band
-holds 78 % of real changes.
+did: median error 1.49 rating points against 1.79 (lower is better), and the
+band between its 10th and 90th percentile holds 78 % of real changes
+(80 % would be a perfectly honest band).
 
 **Does it replay the past?** A save starts from a real club's FIFA 23
 squad. The manager hands out minutes by rating alone; the engine plays
@@ -61,7 +62,8 @@ knowing public data could only take me part of the way.
 **The sample.** 7,507 player states: everyone born 1995–99, seen at 18,
 19, 20 and 21, with the outcome read at 23 to 26.5. To keep myself honest,
 every model was trained on four birth years and tested on the fifth, the
-one it never saw. One pooled, age-aware model rather than one per age,
+one it never saw. "Regular" below means at least 4,500 league minutes in that
+window, about 50 full games. One pooled, age-aware model rather than one per age,
 because the younger samples are thin.
 
 **What came out, in this sample:**
@@ -72,27 +74,33 @@ because the younger samples are thin.
   separated careers better than pace. A hint worth following, not a law.
 - Objective variables alone matched the market's own valuation; together
   they reached an AUC of 0.83 for becoming a top-flight regular at 21, and
-  0.88 for the big five.
+  0.88 for a big-five regular (AUC: how often it puts the right player first,
+  out of 100 pairs of young players, one who became a regular and one who
+  didn't; a coin flip gets 50, so 0.5, and a perfect model 100, so 1).
 - Then it plateaued. That plateau may be the most useful result: what is
   left lives in what only clubs hold (training, physical tests, the
   coach's eye).
 
 **A range for each player.** One probability hides how wide a future is,
 so each player also gets the careers of the 25 most similar players at the
-same age and position, the way baseball's PECOTA does it. Real outcomes
-fell inside that band 85–87 % of the time.
+same age and position, the way baseball's PECOTA does it. Real league minutes
+fell between the 10th and 90th percentile of those careers 85–87 % of the
+time (about 80 % would be an honest range).
 
 ### Who opens the door?
 The first engine missed trust, so I measured it. A manager's youth trust
 is his share of minutes to under-21s; his graduation rate is the share of
-those youngsters still regulars at 23–26. Across managers the two run in
-opposite directions (correlation −0.42): some give many youngsters a
+those youngsters still established at 23–26. Across managers the two run in
+opposite directions (Pearson correlation −0.42, one point per manager, over
+managers with 5 or more developed under-21s, on a scale from −1 to 1: the more
+minutes a manager gives, the smaller the share who stay): some give many youngsters a
 chance and keep few, some pick few and keep them, a handful do both.
 
 A club's minutes can also reveal its manager. The engine replays the
-club's seasons at every youth-trust setting and keeps the one that matches
-what its under-21s really got, benched seasons counted as zero. Ligue 1,
-2022/23–2024/25: Strasbourg 12, Montpellier 10, Lyon 6, Lille and Nantes 4,
+club's seasons at every youth-trust setting (a bonus, in rating points, given
+to under-21s when the engine picks who plays; 0 means rating alone decides)
+and keeps the one that matches what its under-21s really got, benched seasons
+counted as zero. Ligue 1, 2022/23–2024/25, the setting found: Strasbourg 12, Montpellier 10, Lyon 6, Lille and Nantes 4,
 Rennes and Monaco 2, PSG and Marseille 0. At Reims, Toulouse, Lorient and
 Nice no single setting fits, which says something too: they chose among
 their youngsters rather than for them.
@@ -102,9 +110,9 @@ If minutes at level carry the signal, maybe what a player does with the
 ball carries more. Wyscout's public events for 2017/18 in the big five
 (1,941 matches, 2.46 M actions), each action valued with VAEP: how much it
 moves the chances of scoring and conceding. The valuation behaves (Messi
-first at 1.04 per 90, Neymar and Salah next). But for 181 youngsters
+first at 1.04 per 90 minutes, a goal's worth of value per game, Neymar and Salah next). But for 181 youngsters
 already playing big-five minutes, one season of action value added nothing
-to minutes and level (AUC 0.62 either way): the big five had already
+to minutes and level (AUC 0.62 either way, where 0.5 is a coin flip): the big five had already
 chosen. On-ball value belongs earlier, at academy, second-division and
 loan level, over several seasons. A lesson I kept for later.
 
@@ -116,7 +124,7 @@ with us, and is now the right moment to bid for him?
 ### Fresh enough to answer
 The first engine ran on FIFA 23; a scout lives in the current window. The
 desk needed today's players, clubs and ratings:
-- EA FC 27 (19,789 players, September 2026) and FC 26, plus every weekly
+- EA FC 27 (19,789 players, the current edition) and FC 26, plus every weekly
   update of FIFA 15–23 (10.0 M rows: potential, value, wage, work rates,
   traits);
 - Football Life 26's database, understood field by field: 29,413 players,
@@ -138,23 +146,25 @@ With fresher data the engine could see more: the rating trajectory over
 several seasons, EA's depth-chart marker, the level of the team around
 him, his real minutes (missing minutes left missing, never guessed). Each
 addition stayed only if it lowered the error on a season the engine never
-saw. Average error 1.42, and 1.77 for under-21s, against 1.60 and 2.06 for
-the age average. EA's own potential added nothing once trajectory,
+saw. The mean absolute error (the average miss, in rating points, lower is
+better) is 1.42, and 1.77 for under-21s, against 1.60 and 2.06 for the age
+average. EA's own potential added nothing once trajectory,
 composure, minutes and context were in, so the core model leaves it out.
 Jérémy Doku from FIFA 23: 79.0 by 2025 (real 80), 80.6 by 2026 (real 84).
 
 Then a model lab put other learners on the same unseen season: CatBoost,
 an MLP ensemble, a GRU reading rating sequences, all scored on pinball
-loss, blend weights chosen on a separate validation season so the test
-stayed clean. The MLP–LightGBM blend edges LightGBM alone by 0.9 %.
+loss (the error measure for percentile forecasts, lower is better), blend
+weights chosen on a separate validation season so the test stayed clean. The
+MLP–LightGBM blend edges LightGBM alone by 0.9 % on that loss.
 
 ### What Master League does to a player
 To patch Master League I first had to measure it. Saved careers, read
 without changing a byte, set against the Football Life database: players
-gain about 1.2 a season at 16–20, 0.6 at 23–24, nothing at 25–26, then
-lose 0.5 at 27–28 and 1.2 past 31. Almost every 16–20-year-old gains five
-or more in two seasons. Real careers split: some explode (+10 to +12),
-many stall, and real ratings barely move before 30. The desk shows both
+gain about 1.2 a season at 16–20, 0.6 at 23–24, almost nothing at 25–26
+(+0.2), then lose 0.5 at 27–28 and 1.2 at 31–32. Two thirds of the 16–20-year-olds
+gain five or more in two seasons, 94–96 % by three. Real careers split:
+some explode (+10 to +12 for the best tenth), many stall, and real ratings barely move before 30. The desk shows both
 curves side by side.
 
 ### How an analyst sees a player
@@ -163,7 +173,8 @@ written as attribute signatures (regista, mezzala, inverted full-back,
 pressing forward, channel runner...), and fit read on the shape of his
 attributes, each one against what his level predicts, so a star doesn't
 fit every role just by being a star. Archetypes come from the data
-(Gaussian mixtures per line, their number chosen by BIC): Rodri, Caicedo
+(Gaussian mixtures per line, their number chosen by BIC, a score that penalises
+extra clusters): Rodri, Caicedo
 and Tchouaméni land together; Gyökeres, Thuram and Osimhen together.
 
 Plays like compares shapes with today's players at his level or above and
@@ -176,9 +187,11 @@ Four seasons ahead, errors compound, so the simulator had to earn its
 range. It learns minutes from real careers and club moves from team
 levels, draws with heavy tails (some careers do explode), and sets its
 spread per talent tier on one time machine: FIFA 18 to 22. Then it is
-judged on another it never saw: start from FIFA 19 with only what was
-known then, play four seasons, compare with FIFA 23. 80, 78, 76 and 76 %
-of real ratings land inside the band, from the under-65s to the 78+. A
+judged on the same test shifted a year: start from FIFA 19 with only what
+was known then, play four seasons, compare with FIFA 23. The two windows
+overlap, so only the FIFA 23 ratings are new to it. 80, 78, 76 and 76 %
+of real ratings land inside its 10th-to-90th-percentile band (80 is the
+most an honest band can show), from the under-65s to the 78+. A
 simulator that keeps each player in his starting role manages 31 to 40 %.
 
 Each player is played three ways: he stays, he joins your club in the role
@@ -193,7 +206,7 @@ road are read from the median and 90th-percentile paths.
 The other half of a scout's question is when. Buying is treated as an
 option you can exercise in any window: least-squares Monte Carlo
 (Longstaff–Schwartz) over 300 futures, each priced by a market-value model
-(R² 0.77 in log on seasons it never saw). The call weighs what he'd be
+(R² 0.77 on log value for seasons it never saw, where 1 would be perfect). The call weighs what he'd be
 worth to you against the fee: buy, buy below a price, wait, or pass.
 
 ### Lists and comparison
@@ -206,18 +219,19 @@ your squad.
 ## 4 · The market
 
 Master League's transfer search filters on age, position and rating. This
-one keeps those and adds what a scout asks next: peak on the likely and the
-high road, growth room, peak per million, level in a chosen role and how
+one keeps those and adds what a scout asks next: the likely peak (best rating over the next four seasons on the median projection)
+and the high road (the same on the 90th-percentile projection, if he develops
+well), growth room, peak per million, level in a chosen role and how
 well his attributes fit it, archetype, Football Life playing style,
 PlayStyles, any attribute minimum.
 
 ### Where the stars come from
 Before trusting a market, I wanted to know where its talent is made. 91
 youth tournaments from Wikipedia (20,106 players with birth dates and
-clubs), followed into their senior careers. UEFA cohorts up to 2017
-becoming big-five regulars: France 29 %, Spain 27 %, Italy 21 %, England
-16 %, Germany 14 %, Netherlands 9 % (where 45 % become regulars, mostly at
-home). U19 internationals convert about two and a half times better than
+clubs), followed into their senior careers. Share of UEFA cohorts up to 2017
+becoming big-five regulars (4,500+ minutes in those leagues): France 29 %, Spain 27 %, Italy 21 %, England
+16 %, Germany 14 %, Netherlands 9 % (of 108 Dutch players, 45 % became regulars in
+some league, 4,500+ minutes, mostly outside the big five). U19 internationals convert about two and a half times better than
 U17s.
 
 ## 5 · The tactics board
@@ -245,8 +259,12 @@ enough? The big five's first elevens answered it. A balanced plan asks
 what the median eleven has, an extreme one what only the top tenth have,
 and every instruction says how far it pushes.
 
-Brighton's gegenpress leaves the cover in behind 14 points short, Lewis
-Dunk the slowest of the back line. Leverkusen fit a low block at 95 %.
+Brighton's gegenpress leaves the cover in behind 14 attribute points short (the
+plan asks about 78 for recovery pace, the defence averages about 64), Lewis
+Dunk the slowest of the back line. Leverkusen fit a low block at 95 % on the
+ratings of the day the screenshot was captured (plan fit, the mean over the nine
+demands of how well the eleven meets each: 100 % means every demand is met, 15
+points short on one scores zero).
 Feyenoord come up short on finishing and transition speed whatever the
 style.
 
@@ -255,7 +273,8 @@ Then the board suggests fixes, computed rather than written: one-setting
 changes judged on the whole plan with their side effects, the squad player
 who would lift a demand most in one slot, and market targets who would
 really come (clubs at your level or below, within your means). Brighton's
-gegenpress: drop the line from 8 to 5 and plan fit goes from 80 % to 84 %.
+gegenpress: drop the defensive line setting from 8 to 5 and plan fit goes from
+80 % to 84 %.
 One click applies it.
 
 The plan's load caps the minutes a starter can carry; the rest go to the
@@ -304,5 +323,5 @@ moves its own demand the right way. 41 checks, one command.
 
 The Patcher reads players through ratings, because that is what a
 Master League save has. A club has more: what a player does on match day
-and on a Tuesday morning in training. That is a different project,
-Promesse.
+and on a Tuesday morning in training. That became a different project,
+Promesse, with its own public repo.

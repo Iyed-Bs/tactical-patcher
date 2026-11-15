@@ -1,5 +1,5 @@
 """Transfermarkt, read directly: the transfer windows and squads the CC0
-dataset stopped covering (it froze on 6 July 2026), and the competitions it
+dataset stopped covering (it froze in 2026), and the competitions it
 never covered (second divisions, South America, youth).
 
 Polite by design: one request at a time, at least the 2-second crawl delay

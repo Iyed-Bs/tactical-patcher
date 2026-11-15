@@ -4,7 +4,7 @@ up to that day and nothing after.
 Two kinds of rows in the `states` table:
 - history: players born 1995-1999 at their 18th, 19th, 20th and 21st
   birthdays, with outcomes at 23-26.5 (what the models learn from);
-- current: every player born mid-2005 to mid-2009 as of 1 July 2026, the
+- current: every player born mid-2005 to mid-2009 as of the start of the 2026/27 season, the
   promises the scored promises (no outcome yet).
 
 Features follow the research loops (dossier §13): minutes and their share of

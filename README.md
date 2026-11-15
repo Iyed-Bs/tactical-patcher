@@ -36,8 +36,9 @@ decade's elite peaks, and the ones who looked like him at his age.
 radar, each with notes, kept between sessions. Tick two to four players and
 compare them side by side, every one played forward at your club in the
 role its depth chart gives him, or set a scouted player against one of your
-own: rating now and in two seasons, likely peak and high road, the range in
-four seasons, value, minutes, roles, archetype and attributes, the best of
+own: rating now and in two seasons, likely peak (his best rating over the next
+four seasons on the median projection) and high road (the same on the 90th-percentile
+projection, if he develops well), the range in four seasons, value, minutes, roles, archetype and attributes, the best of
 the group on each line marked.
 
 ![Comparison: two scouted midfielders and a Lille starter, played forward at Lille](screenshots/14-compare.png)
@@ -62,7 +63,10 @@ a player to change his role or who plays there. The board shows:
   opponent;
 - what the plan asks of this eleven against what its attributes give
   (press resistance for a short build-up, recovery pace for a high line,
-  an engine for gegenpressing), and where it breaks, by name;
+  an engine for gegenpressing), and where it breaks, by name. Plan fit is the
+  mean over the nine demands of how well the eleven meets each, from 0 to 100 %:
+  100 % means every demand is met, and a demand missed by 15 or more points on
+  the 0–99 attribute scale scores zero;
 - the seasons played forward: the plan's load caps the minutes each
   starter can carry, minutes decide growth, the coach picks again from the
   grown squad.
@@ -71,8 +75,8 @@ It coaches as well. The coach's notes put the three changes that help
 most at the top, each one click from applied, and name the coach styles
 this eleven suits best. Every demand opens up: what it measures (which
 positions, which attributes, with their weights), why the plan asks what
-it asks (the big five's spread and how far each of your instructions
-pushes it), who carries it player by player, and how to fix it: a
+it asks (the spread across the first elevens of Europe's big five leagues,
+and how far each of your instructions pushes it), who carries it player by player, and how to fix it: a
 tactical change with its side effects, a player from your own squad, or
 targets on the market who would really come.
 
@@ -82,8 +86,8 @@ targets on the market who would really come.
 
 **Analysis.** The data behind the app, read as a scout would:
 - *Promises:* every under-21 with senior minutes, scored on the chance of
-  becoming a top-flight regular by 23–26, at his club after the summer
-  2026 window;
+  becoming a top-flight regular (at least 4,500 league minutes, about 50
+  full games) by 23–26, at his club after the summer 2026 window;
 - *Clubs:* each club of nine leagues with its FC 27 level, the share of
   minutes it gives under-21s season by season and under which coach, its
   young players and where they could go, the window's arrivals and
@@ -91,7 +95,8 @@ targets on the market who would really come.
 - *Managers:* every coach with 30+ league games since 2021/22, how much of
   his minutes went to under-21s and the youngsters he relied on; and, for
   the older cohorts, whether the youngsters he trusted stayed regulars;
-- *On the ball:* every action of 2017/18 in the big five valued with VAEP,
+- *On the ball:* every action of 2017/18 in the big five leagues valued with
+  VAEP (how much an action moves the chance of scoring and of conceding),
   the young players whose actions were worth most, and what became of them;
 - *First Patcher:* the season engine on real FIFA 23 squads, set against
   what clubs really did with their under-21s.
@@ -110,21 +115,23 @@ More in [screenshots/](screenshots/).
   careers, read without changing a byte, measure how the game itself grows
   players.
 - **One key per player** across EA FC 26/27, FIFA 15–23, Football Life 26
-  and Transfermarkt: Fellegi–Sunter record linkage with m/u weights fitted
-  by EM (name tokens, birth date or year, height, foot, nation, club, line,
+  and Transfermarkt: Fellegi–Sunter record linkage (each field that matches, a name, a birth date, a club, adds
+  evidence that two records are the same person, like two ID cards agreeing on several details) with m/u weights
+  (m: how often a field matches for one person; u: how often it matches by chance for two different people) fitted
+  by EM (expectation-maximisation; name tokens, birth date or year, height, foot, nation, club, line,
   rating consistency), chained through Transfermarkt's exact birth dates.
   82,933 people.
-- **Growth engine.** LightGBM quantile regression (P10, P50, P90 of next
-  season's change) on season-to-season changes from FIFA 15–23, each joined
+- **Growth engine.** LightGBM quantile regression (the 10th, 50th and 90th
+  percentile of next season's rating change) on season-to-season changes from FIFA 15–23, each joined
   to the minutes the player really got. Missing minutes stay missing.
 - **Four-season simulator.** Learned minutes and club-move models,
   heavy-tailed draws, a spread per talent tier calibrated on a time machine
-  (FIFA 18 → 22) and tested on another (FIFA 19 → 23).
+  (FIFA 18 → 22) and checked on the same test shifted a year (FIFA 19 → 23; the windows overlap).
 - **Profiles.** 28 roles as attribute signatures, fit read on shape
   (attributes relative to level), archetypes from Gaussian mixtures sized
-  by BIC, plays-like by cosine similarity of shapes.
-- **When to buy.** A market value model (LightGBM, R² 0.77 in log on unseen
-  seasons) and least-squares Monte Carlo (Longstaff–Schwartz) over 300
+  by BIC (a score that penalises extra clusters), plays-like by cosine similarity of shapes.
+- **When to buy.** A market value model (LightGBM, R² 0.77 on log value for
+  unseen seasons, where 1 would be perfect) and least-squares Monte Carlo (Longstaff–Schwartz) over 300
   futures: buying is an option you can exercise in any window.
 - **Tactics layer.** A game plan read as football rules: role movements in
   and out of possession, shapes, and nine demands (build-up under pressure,
@@ -148,39 +155,50 @@ More in [screenshots/](screenshots/).
 - **Promise model.** Penalised logistic regression on 7,507 player states
   (born 1995–99, at 18 to 21), outcome at 23–26, tested on a birth year it
   never saw; ranges from the 25 nearest comparables at the same age and
-  position, PECOTA-style.
+  position, in the style of PECOTA, the baseball forecasting system.
 - **Model lab.** LightGBM, CatBoost, an MLP ensemble and a GRU on rating
-  sequences, compared on pinball loss for an unseen season, blend weights
+  sequences, compared on pinball loss (the error measure for percentile forecasts, lower is
+  better) for an unseen season, blend weights
   chosen on a separate validation season. The MLP–LightGBM blend beats
-  LightGBM alone by 0.9 % and its 80 % band holds 80 % of real changes
-  (76 % for LightGBM).
+  LightGBM alone by 0.9 % on that loss, and its 10th-to-90th-percentile band
+  holds 80 % of real changes (76 % for LightGBM).
 - FastAPI, DuckDB, pandas; a vanilla JS front end.
 
 ## What the data says
 
-- **Master League is on rails.** In real saves, almost every 16–20 year-old
-  gains 5+ in two seasons; real careers split, some explode, many stall.
-  ML also declines players from 27; real ratings barely move until 30.
+- **Master League is on rails.** In real saves, two thirds of 16–20 year-olds
+  gain 5 or more rating points in two seasons and nearly all of them (94–96 %)
+  by three; real careers split, some explode (+10 to +12 for the best tenth),
+  many stall. Master League also makes players decline from 27;
+  real ratings barely move until 30.
 - **A rating follows the club too.** Kees Smit, starting at AZ, moves from
-  75.0 to 75.6 in four seasons on EA's scale; on Bayern's bench he reaches
+  an overall rating of 75.0 to 75.6 in four seasons on EA's scale; on Bayern's bench he reaches
   81.2, as a Bayern starter 84.5. A rating is partly the club's.
-- **Where youth internationals land.** UEFA cohorts to 2017 becoming
-  big-five regulars: France 29 %, Spain 27 %, Italy 21 %, England 16 %,
-  Germany 14 %, Netherlands 9 % (45 % regulars, mostly at home).
+- **Where youth internationals land.** Share of players in UEFA youth
+  tournaments up to 2017 who became big-five regulars (4,500+ minutes in
+  those leagues): France 29 %, Spain 27 %, Italy 21 %, England 16 %,
+  Germany 14 %, Netherlands 9 % (of 108 Dutch players, 45 % became regulars in
+  some league, 4,500+ minutes, mostly outside the big five).
 - **Giving youth minutes and keeping youngsters run in opposite
   directions.** Managers who give under-21s the most minutes graduate the
-  smallest share of them (correlation −0.42): volume developers and
-  selective developers.
-- **A club's minutes reveal its manager.** Ligue 1, 2022/23–2024/25,
-  revealed youth trust: Strasbourg 12, Montpellier 10, Lyon 6, Monaco 2,
-  PSG 0.
+  smallest share of them (Pearson correlation −0.42, one point per manager, over
+  managers with 5 or more developed under-21s, on a scale from −1 to 1: the more
+  league minutes given to under-21s, the lower the share of those youngsters
+  established at 23–26): volume developers and selective developers.
+- **A club's minutes reveal its manager.** Ligue 1, 2022/23–2024/25. For each
+  club, the engine looks for the bonus, in rating points, that it must give
+  under-21s when picking who plays to match the minutes they really got
+  (0 means rating alone decides): Strasbourg 12, Montpellier 10, Lyon 6,
+  Monaco 2, PSG 0.
 
 The full story is in the [devlog](DEVLOG.md).
 
 ## Is it any good
 
-Every model is judged on players it never saw: trained on four birth
-years, tested on the fifth.
+The promise models (scored by AUC, how often the model puts the right player first) are judged on players they
+never saw: trained on four birth years, tested on the fifth. The growth engine is judged on a season it never saw (trained on
+season pairs up to FIFA 21 to 22, tested on FIFA 22 to 23) and the market value model on the latest seasons it never saw. The simulator's check is weaker, and I'd rather
+say so: its range is judged on a window shifted by a year from the one it was tuned on, and the two windows overlap.
 
 | | 18 | 19 | 20 | 21 |
 |---|---|---|---|---|
@@ -188,19 +206,28 @@ years, tested on the fifth.
 | Becomes a big-five regular (AUC) | 0.80 | 0.85 | 0.85 | 0.88 |
 | Real minutes inside the comparables' range | 86 % | 87 % | 86 % | 85 % |
 
+AUC is how often the model puts the right player first. Take one young player who became a regular and one who
+didn't, and ask which the model ranks higher: out of 100 such pairs it is right in about 83 when the AUC is 0.83.
+A coin flip gets 50 (0.5), a perfect model 100 (1), higher is better. The
+comparables' range runs from the 10th to the 90th percentile of the league
+minutes of the 25 most similar players at the same age and position; the last
+row is the share of unseen players whose real minutes fell inside it (about 80 %
+would mean the range is honest).
+
 Growth engine, one season ahead on a season it never saw: mean absolute
 error 1.42 rating points, 1.77 for under-21s (age average: 1.60 and 2.06).
 
 Four-season simulator, started from FIFA 19 with only what was known then
-and compared with FIFA 23: 80 / 78 / 76 / 76 % of real ratings inside its
-band, by talent tier (under 65, 65–71, 72–77, 78+), against 31–40 % for a
+and compared with FIFA 23 (a window shifted by a year from the one it was tuned on, FIFA 18 to 22; the windows overlap,
+so only the FIFA 23 ratings are new to it): 80 / 78 / 76 / 76 % of real ratings inside its
+range (its 10th to 90th percentile; 80 is what an honest range would show), by talent tier (under 65, 65–71, 72–77, 78+), against 31–40 % for a
 simulator that keeps each player in his starting role.
 
 ## What comes next
 
 The Patcher reads players through ratings, because that is what a Master
 League save has. A club has more: what a player does on match day and on a
-Tuesday morning in training. That is the next project, Promesse.
+Tuesday morning in training. That became a different project, Promesse, with its own public repo.
 
 ## Data
 
